@@ -14,27 +14,35 @@
 ## 二、界面演示
 
 1. 登录界面
-    
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/f86c4359-ca95-493a-8cc3-6064a807fb4d)
+
 
 2. 管理员——超市详情
-   
+   ![image](https://github.com/tsjmb/ssm/assets/141702894/c02d7c11-7a21-4f0f-a253-0d5152338647)
+
 
 3. 管理员——员工管理
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/f22b3215-ca27-4cec-8762-da89924184c0)
 
 
 4. 管理员——商品管理
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/b4df23b4-ab28-4aed-ab2c-354787aa68d4)
 
 
 5. 管理员——销售清单
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/19bd0071-0ed6-4779-9e6b-8ee3df86ea8c)
 
 
 6. 员工——订单结算
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/7f21109c-f124-4a59-9d35-15ea8a020072)
 
 
 7. 员工——商品入库
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/7d776210-10b5-4ce2-9c1a-1cf6d95a14e2)
 
 
 8. 员工——个人信息
+    ![image](https://github.com/tsjmb/ssm/assets/141702894/e23a6898-ad8a-48cb-ab6d-073ab3d0c7d3)
 
 
 
