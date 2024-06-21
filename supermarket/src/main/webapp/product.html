@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <link rel="stylesheet" href="./css/product.css">
+    <style>
+        .avatar-uploader{
+            /* background-color: aqua; */
+            text-align: right;
+        }
+        .el-upload{
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            float: right;
+            border: 1px dashed #d9d9d9;
+            /* background-color: red; */
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar {
+            width: 70px;
+            height: 70px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div id="app4">
+    <div id="left">
+        <div id="head">
+            商品检索栏
+        </div>
+        <div id="bodys1">
+            <p>直接搜索</p>
+            <el-input
+                    placeholder="请输入商品编号"
+                    v-model="input"
+                    size="mini"
+                    clearable>
+            </el-input>
+        </div>
+        <div id="bodys2">
+            <p>条件搜索</p>
+            <template>
+                <el-select v-model="value1" placeholder="请选择商品分类" size="mini">
+                    <el-option
+                            v-for="item in options1"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.label">
+                    </el-option>
+                </el-select>
+
+                <el-select v-model="value2" placeholder="请选择商品状态" size="mini">
+                    <el-option
+                            v-for="item in options2"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+
+            </template>
+        </div>
+        <div id="foot">
+            <el-button type="primary" plain size="mini" icon="el-icon-search" @click="btn_search">搜索</el-button>
+            <el-button type="warning" plain size="mini" icon="el-icon-delete" @click="btn_rest">重置</el-button>
+        </div>
+    </div>
+    <div id="right">
+        <div id="product_content">
+            <div id="content_box" v-for="(item,index) in tableProduct" :key="item.id">
+                <div id="shang">
+                    <el-image
+                            :src="item.url"
+                            fit="cover"></el-image>
+                    <div id="show_content">
+                        <p>编号：{{item.id}}</p>
+
+                        <p>名称：{{item.name}}</p>
+                    </div>
+                    <div id="show_xia">
+                        <p>
+                            <span style="margin-left: 5%;">进价：￥ {{item.purchasePrice}}</span>
+                            <span>售价：￥ {{item.price}}</span>
+                        </p>
+                        <p>
+                            <span style="margin-left: 5%;">分类：{{item.sort}}</span>
+                            <span>状态：{{item.status}}</span>
+                        </p>
+                        <p>
+                            <span style="margin-left: 5%;">库存：{{item.inventory}}</span>
+                            <span >月销量：{{item.number}}</span>
+                        </p>
+                    </div>
+                </div>
+                <div id="xia">
+                    <el-button type="primary" icon="el-icon-edit" @click="btn_edit(item)" circle></el-button>
+                    <el-button type="danger" icon="el-icon-delete" @click="btn_delete(item.id)" circle></el-button>
+                </div>
+            </div>
+
+            <el-dialog title="商品信息" :visible.sync="dialogFormVisible">
+                <el-form :model="form">
+
+                    <el-form-item label="商品图片" :label-width="formLabelWidth">
+                        <el-upload
+                                class="avatar-uploader"
+                                action="commons/upload"
+                                :show-file-list="false"
+                                :on-success="handleAvatarSuccess"
+                                :before-upload="beforeAvatarUpload">
+                            <img v-if="form.url" :src="form.url" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                    </el-form-item>
+
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="商品编号" :label-width="formLabelWidth">
+                                <el-input v-model="form.id" autocomplete="off" size="small" :disabled="true"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="商品名称" :label-width="formLabelWidth">
+                                <el-input v-model="form.name" autocomplete="off" size="small"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="商品进价" :label-width="formLabelWidth">
+                                <el-input v-model="form.purchasePrice" autocomplete="off" size="small"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="商品售价" :label-width="formLabelWidth">
+                                <el-input v-model="form.price" autocomplete="off" size="small"></el-input>
+                            </el-form-item>
+                        </el-col>
+
+                        <el-col :span="8">
+                            <el-form-item label="商品库存" :label-width="formLabelWidth">
+                                <el-input v-model="form.inventory" autocomplete="off" size="small"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+
+
+                    <el-row>
+                        <el-col :span="6">
+                            <el-form-item label="商品状态" :label-width="formLabelWidth">
+                                <el-switch
+                                        v-model="form.status"
+                                        active-color="#13ce66"
+                                        inactive-color="#ff4949">
+                                </el-switch>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="商品月销量" :label-width="formLabelWidth">
+                                <el-input v-model="form.number" autocomplete="off" size="small"></el-input>
+                            </el-form-item>
+                        </el-col>
+
+                        <el-col :span="10">
+                            <el-form-item label="商品分类" :label-width="formLabelWidth">
+                                <el-select v-model="form.sort" placeholder="请选择分类" size="small">
+                                    <el-option
+                                            v-for="item in options1"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.label">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false" size="small">取 消</el-button>
+                    <el-button type="primary" @click="btn_sumbit" size="small">确 定</el-button>
+                </div>
+            </el-dialog>
+
+        </div>
+        <div id="product_foot">
+            <el-button type="primary" icon="el-icon-arrow-left" size="mini" @click="shangPage">上一页</el-button>
+            <span>第{{dang}}页/共{{gong}}页</span>
+            <el-button type="primary" size="mini" @click="xiaPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    new Vue({
+        el: '#app4',
+        created(){
+            this.searchPage(0)
+            axios({
+                url:'products/length',
+                method:'GET'
+            }).then(result => {
+                // console.log(result.data.data)
+                this.total=Math.ceil(result.data.data/6)
+                this.gong=this.total
+            })
+        },
+        data () {
+            return {
+                dang:1,
+                gong:'',
+                total:'',
+                options1: [{
+                    value: 1,
+                    label: '数码'
+                }, {
+                    value: 2,
+                    label: '家用'
+                }, {
+                    value: 3,
+                    label: '食品'
+                }, {
+                    value: 4,
+                    label: '文具'
+                }, {
+                    value: 5,
+                    label: '服饰'
+                }, {
+                    value: 6,
+                    label: '其他'
+                }],
+                options2: [{
+                    value: 1,
+                    label: '在售'
+                }, {
+                    value: 2,
+                    label: '下架'
+                }],
+                value1: '',
+                value2:'',
+                value3:true,
+                input:'',
+                flag:true,
+                allProduct:[],
+                tableProduct:[],
+                dialogFormVisible: false,
+                oldform:[],
+                form: {
+                    id:'',
+                    name: '',
+                    purchasePrice: '',
+                    price:'',
+                    sort: '',
+                    status:'',
+                    inventory: '',
+                    number: '',
+                    url:'',
+                    region: '',
+                },
+                formLabelWidth: '120px'
+            }
+        },
+        methods:{
+            btn_edit(item){
+                // console.log(item)
+                this.form.id=item.id
+                this.form.name=item.name
+                this.form.purchasePrice=item.purchasePrice
+                this.form.price=item.price
+                this.form.sort=item.sort
+                this.form.inventory=item.inventory
+                this.form.number=item.number
+                this.form.url=item.url
+
+                if(item.status=='在售'){
+                    this.form.status=true
+                }else{
+                    this.form.status=false
+                }
+
+                this.oldform=JSON.stringify(this.form)
+
+                this.dialogFormVisible=true;
+            },
+            btn_delete(id){
+                // console.log(id)
+                this.open(id)
+            },
+            btn_rest(){
+                this.input='',
+                    this.value1='',
+                    this.value2='',
+                    this.dang=1,
+                    this.flag=true,
+                    this.gong=this.total,
+                    this.searchPage(0)
+            },
+            btn_search(){
+                // console.log("点击了搜索")
+                // console.log(this.input)
+                // console.log(this.value1)
+                // console.log(this.value2)
+                if(this.input!=''||this.value2!=''||this.value1!=''){
+                    // console.log("进入了")
+                    axios({
+                        url:'products',
+                        method:'POST',
+                        data:{
+                            id:this.input,
+                            status:this.value2,
+                            sort:this.value1
+                        }
+                    }).then(result => {
+                        // console.log(result.data)
+                        this.allProduct=result.data.data
+
+                        this.allProduct=this.allProduct.map(obj => {
+                            if(obj.status==1){
+                                return{...obj,status:"在售",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                            }else{
+                                return{...obj,status:"下架",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                            }
+                            return obj
+                        })
+                        this.gong=Math.ceil(this.allProduct.length/6)
+                        this.dang=1
+                        this.tableProduct=this.allProduct.slice(0,6)
+                        this.flag=false
+                    })
+                }
+                // console.log(this.value1)
+                // console.log(this.value2)
+            },
+            handleAvatarSuccess(res, file) {
+                this.form.url = URL.createObjectURL(file.raw);
+            },
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPNG = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG && !isPNG) {
+                    this.$message.error('上传头像图片只能是 JPG或者PNG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return (isJPG || isPNG) && isLt2M;
+            },
+            btn_sumbit(){
+                // console.log("点击了")
+                console.log(this.form.url.split('=')[1])
+                if(JSON.stringify(this.form)!=this.oldform){
+                    // console.log("改变了")
+                    let status
+                    if(this.form.status==true){
+                        status=1
+                    }else{
+                        status=2
+                    }
+                    axios({
+                        url:'products',
+                        method:'PUT',
+                        data:{
+                            id:this.form.id,
+                            name:this.form.name,
+                            purchasePrice:this.form.purchasePrice,
+                            price:this.form.price,
+                            sort:this.form.sort,
+                            status:status,
+                            inventory:this.form.inventory,
+                            number:this.form.number,
+                            url:this.form.url.split('=')[1]
+                        }
+                    }).then(result => {
+                        // console.log(result.data.data)
+                        this.$message({
+                            message: '恭喜你，修改成功！',
+                            type: 'success'
+                        });
+                    })
+                    this.dialogFormVisible=false
+                }else{
+                    console.log("没有改变")
+                }
+            },
+            open(id) {
+                this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios({
+                        url:`products/${id}`,
+                        method:'DELETE'
+                    }).then(result => {
+                        // console.log(result.data.data)
+                    })
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!'
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            shangPage(){
+                if(this.dang!=1){
+                    if(this.flag){
+                        this.dang=this.dang-1
+                        this.searchPage((this.dang-1)*6)
+                    }else{
+                        this.dang=this.dang-1
+                        this.tableProduct=this.allProduct.slice((this.dang-1)*6,(this.dang-1)*6+6)
+
+                    }
+                }
+            },
+            xiaPage(){
+                if(this.dang!=this.gong){
+                    if(this.flag){
+                        this.dang=this.dang+1
+                        this.searchPage((this.dang-1)*6)
+                    }else{
+                        this.dang=this.dang+1
+                        this.tableProduct=this.allProduct.slice((this.dang-1)*6,(this.dang-1)*6+6)
+                        // console.log(this.tableProduct)
+                    }
+
+                    // console.log(this.dang-1)
+                }
+            },
+            searchPage(index){
+                axios({
+                    url:'products',
+                    method:'GET',
+                    params:{
+                        index:index
+                    }
+                }).then(result => {
+                    // console.log(result.data.data)
+                    this.tableProduct=result.data.data
+                    this.tableProduct=this.tableProduct.map(obj => {
+                        if(obj.status==1){
+                            return{...obj,status:"在售",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                        }else{
+                            return{...obj,status:"下架",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                        }
+                        return obj
+                    })
+                    // console.log(this.tableProduct)
+                })
+            }
+        }
+    })
+</script>
+<script>
+    // const box = document.getElementById("content_box");
+    // const xia_control = document.getElementById("xia");
+    // box.onmouseover=function(){
+    //     xia_control.style.display="block"
+    // }
+</script>
+</html>

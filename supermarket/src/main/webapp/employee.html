@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/vue.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="./css/employee.css">
+
+    <style>
+
+    </style>
+</head>
+<body>
+    <div id="app1">
+        <div id="up">
+              <div>
+                <span id="uid">员工编号：</span>
+                <el-input
+                  placeholder="请输入员工编号"
+                  v-model="input1"
+                  size="small"
+                  clearable>
+                </el-input>
+              </div>
+
+              <div>
+                <span id="name">姓名：</span>
+                <el-input
+                  placeholder="请输入员工姓名"
+                  v-model="input2"
+                  size="small"
+                  clearable>
+                </el-input>
+              </div>
+
+              <div>
+                <el-button type="primary" size="small" id="btn_search" @click="btn_search">搜索</el-button>
+                <el-button type="warning" size="small" id="btn_cancel" @click="btn_cancel">重置</el-button>
+<!--                <el-button type="success" size="small" @click="btn_add">添加</el-button>-->
+              </div>
+                
+
+        </div>
+
+
+        <div id="down">
+          <el-table
+          :data="tableData"
+          border
+          style="width: 100%">
+          <el-table-column
+            prop="id"
+            label="编号"
+            width="192">
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="姓名"
+            width="192">
+          </el-table-column>
+          <el-table-column
+            prop="sex"
+            label="性别"
+            width="192">
+          </el-table-column>
+          <el-table-column
+            prop="age"
+            label="年龄"
+            width="192">
+          </el-table-column>
+          <el-table-column
+            prop="phone"
+            label="电话"
+            width="192">
+          </el-table-column>
+
+          <el-table-column
+            prop="address"
+            width="240"
+            label="地址">
+          </el-table-column>
+
+          <el-table-column label="操作" >
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-pagination
+            background
+            layout="prev, pager, next"
+            @next-click="nextPage"
+            @prev-click="prevPage"
+            @current-change="changePage"
+            :total="100">
+        </el-pagination>
+        </div>
+
+        <el-dialog title="员工信息" :visible.sync="dialogFormVisible"> 
+          <el-form :model="form">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="员工编号" :label-width="formLabelWidth">
+                  <el-input v-model="form.id" autocomplete="off" size="small" :disabled="statis"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="员工姓名" :label-width="formLabelWidth">
+                  <el-input v-model="form.name" autocomplete="off" size="small"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="员工性别" :label-width="formLabelWidth">
+                  <el-input v-model="form.sex" autocomplete="off" size="small"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="员工年龄" :label-width="formLabelWidth">
+                  <el-input v-model="form.age" autocomplete="off" size="small"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-form-item label="员工电话" :label-width="formLabelWidth">
+              <el-input v-model="form.phone" autocomplete="off" size="small"></el-input>
+            </el-form-item>
+
+
+
+            <el-row>
+              <el-col :span="5">
+                <el-form-item label="家庭住址" :label-width="formLabelWidth"></el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="省" :label-width="formLabelWidth1">
+                  <el-select v-model="form.region1" placeholder="请选择" size="small">
+                      <el-option
+                              v-for="item in province"
+                              :key="item.area_id"
+                              :label="item.name"
+                              :value="item.name"
+                      ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="市" :label-width="formLabelWidth1">
+                  <el-select v-model="form.region2" placeholder="请选择" size="small">
+                      <el-option
+                              v-for="item in city"
+                              :key="item.area_id"
+                              :label="item.name"
+                              :value="item.name"
+                      ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="6">
+                <el-form-item label="县" :label-width="formLabelWidth1">
+                  <el-select v-model="form.region3" placeholder="请选择" size="small">
+                      <el-option
+                              v-for="item in county"
+                              :key="item.area_id"
+                              :label="item.name"
+                              :value="item.name"
+                      ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+      
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="btn_save()"  size="small">保 存</el-button>
+          </div>
+        </el-dialog>
+    </div>
+
+   
+
+</body>
+<script>
+    new Vue({
+      el: '#app1',
+        watch:{
+            'form.region1': {
+                handler(newValue,oldValue) {
+                    // console.log("旧值为"+oldValue)
+                    // console.log("新值为"+newValue)
+                    this.sendByName(newValue,2)
+                }
+            },
+            'form.region2': {
+                handler(newValue,oldValue) {
+                    // console.log("旧值为"+oldValue)
+                    // console.log("新值为"+newValue)
+                    this.sendByName(newValue,3)
+                }
+            }
+
+        },
+        created(){
+            this.sendPage(0)
+        },
+      data() {
+    return {
+        statis:true,
+        flag:'',
+      input1: '',
+      input2: '',
+      input3: '',
+      province:[],
+      city:[],
+      county:[],
+      oldform:[],
+      tableData: [],
+        dialogFormVisible: false,
+        form: {
+          id:'',
+          name: '',
+          sex:'',
+          age:'',
+          phone:'',
+            region1: '',
+            region2: '',
+            region3: '',
+          delivery: false,
+        },
+        formLabelWidth: '120px',
+        formLabelWidth1: '40px',
+    }
+  },   
+   methods: {
+      handleEdit(index, row) {
+        // console.log(index, row);
+        // console.log(row.province)
+          this.statis=true
+        this.sendById(0,1)
+          this.sendByName(row.province,2)
+          this.sendByName(row.city,3)
+          this.form.region1=row.province
+          this.form.region2=row.city
+          this.form.region3=row.county
+        this.dialogFormVisible=true
+        this.form.name=row.name
+        this.form.id=row.id
+        this.form.sex=row.sex
+        this.form.age=row.age
+        this.form.phone=row.phone
+        this.flag=2
+
+        this.oldform=JSON.stringify(this.form)
+        // console.log(this.oldform)
+
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+        this.open(row.id)
+      },
+      btn_cancel(){
+        this.input1='',
+        this.input2='',
+            this.sendPage(0)
+      },
+      btn_search(){
+          if(this.input1!=''||this.input2!=''){
+              if(this.input2==''){
+                  this.input2=null
+              }
+              axios({
+                  url:"employees",
+                  method:'GET',
+                  params:{
+                      id:this.input1,
+                      name:this.input2
+                  }
+              }).then(result => {
+                  // console.log(this.input1)
+                  //   console.log(this.input2)
+                  // console.log(result.data.data)
+                  if(result.data.data==null){
+                      this.tableData=[]
+                  }else{
+                      this.tableData=[]
+                      this.tableData.push(result.data.data)
+                      this.tableData=this.tableData.map(item => {
+                          return {...item,address:item.province+item.city+item.county}
+                      })
+                  }
+              })
+          }
+
+        // console.log("点击了查询")
+      },
+       btn_save(){
+           if(this.flag==1){
+               if(this.form.id!=''&&this.form.name!=''&&this.form.sex!=''&&this.form.age!=''
+                   &&this.form.phone!=''&&this.form.region1!=''&&this.form.region2!=''&&this.form.region3!=''){
+                   axios({
+                       url:"employees",
+                       method:"POST",
+                       data:{
+                           id:this.form.id,
+                           name:this.form.name,
+                           sex:this.form.sex,
+                           age:this.form.age,
+                           phone:this.form.phone,
+                           province:this.form.region1,
+                           city:this.form.region2,
+                           county:this.form.region3
+                       }
+                   }).then(result =>{
+                       // console.log(result.data)
+                       this.$message({
+                           type: 'success',
+                           message: '添加成功!'
+                       });
+                   })
+                   this.dialogFormVisible = false
+               }else{
+                   this.$message({
+                       message: '警告哦，信息不能为空！',
+                       type: 'warning'
+                   });
+               }
+           }
+
+           if(this.flag==2){
+               // console.log("执行了修改操作")
+               if(JSON.stringify(this.form)!=this.oldform){
+                    axios({
+                        url:'employees',
+                        method:'PUT',
+                        data:{
+                            id:this.form.id,
+                            name:this.form.name,
+                            sex:this.form.sex,
+                            age:this.form.age,
+                            phone:this.form.phone,
+                            province:this.form.region1,
+                            city:this.form.region2,
+                            county:this.form.region3
+                        }
+                    }).then(result => {
+                        // console.log(result)
+                        if(result.data.data=true){
+                            this.$message({
+                                message: '恭喜你，修改成功！',
+                                type: 'success'
+                            });
+                        }
+                    })
+                   console.log("改变了")
+                   this.dialogFormVisible = false
+               }else{
+                   console.log("没有改变")
+               }
+
+           }
+
+
+
+       },
+      open(id) {
+        this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            axios({
+                url:`employees/${id}`,
+                method: "DELETE"
+            }).then(result => {
+                console.log(result.data)
+            })
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+      },
+      btn_add(){
+        this.dialogFormVisible=true
+          this.statis=false
+        this.form.name=''
+        this.form.id=''
+        this.form.sex=''
+        this.form.age=''
+        this.form.phone=''
+        this.form.region1=''
+          this.form.region2=''
+          this.form.region3=''
+          // this.form.address=''
+          this.sendById(0,1)
+        this.flag=1
+      },
+       sendById(id,number){
+           axios({
+               url:`areas/${id}`,
+               method:"GET"
+           }).then(result => {
+               if(number==1){
+                   this.province=result.data.data
+               }else if(number==2){
+                   this.city=result.data.data
+               }else{
+                   this.county=result.data.data
+               }
+               // console.log(result.data.data)
+
+           })
+       },
+       sendByName(name,number){
+           const params = new URLSearchParams();
+           params.append('name', name);
+            if(name!=''){
+                axios({
+                    url:'areas',
+                    method:"POST",
+                    data: params,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).then(result => {
+                    this.sendById(result.data.data.area_id,number)
+                    // console.log(result.data.data)
+
+                })
+            }
+
+       },
+       nextPage(page){
+          console.log(page)
+           this.sendPage((page-1)*9)
+       },
+       prevPage(page){
+          console.log(page)
+           this.sendPage((page-1)*9)
+
+       },
+       changePage(page){
+          console.log(page)
+           this.sendPage((page-1)*9)
+       },
+       sendPage(index){
+           axios({
+               url:"employees/page",
+               method:"GET",
+               params:{
+                   index:index
+               }
+           }).then(result => {
+               console.log(result.data.data)
+               this.tableData=result.data.data.map(item => {
+                   return{...item,address:item.province+item.city+item.county}
+               })
+               console.log(this.tableData)
+           });
+       }
+    }
+    })
+  </script>
+</html>

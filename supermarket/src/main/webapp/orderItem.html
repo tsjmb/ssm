@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        #app8{
+            width: 100%;
+            height: 100vh;
+            background-color: #F2F6FC;
+        }
+        #up{
+            width: 100%;
+            height: 10%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #303133;
+            font-size: 20px;
+            position: relative;
+        }
+
+        #tu{
+            width: 10%;
+            height: auto;
+            /* background-color: red; */
+            position: absolute;
+            font-size: 16px;
+            left: 0;
+        }
+        #down{
+            width: 100%;
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+        }
+
+        #table{
+            width: 75%;
+            height: 80%;
+            /* background-color: red; */
+        }
+        #shang{
+            width: 100%;
+            height: 10%;
+            background-color: #F2F6FC;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        #xia{
+            width: 100%;
+            height: 10%;
+            background-color: #F2F6FC;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app8">
+
+        <div id="up">
+            <div id="tu" class="el-icon-arrow-left" @click="fanhui">返回</div> 
+            <div>销售清单明细表</div>
+        </div>
+        <div id="down">
+            <div id="table">
+                <div id="shang">
+                    <div>订单编号：{{id}}</div>
+                    <div>交易时间：{{times}}</div>
+                    <div>操作人：{{operator}}</div>
+                </div>
+                <el-table
+                :data="tableData"
+                border
+                style="width: 100%">
+                <el-table-column
+                  prop="id"
+                  label="商品编号"
+                  width="260">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="商品名称"
+                  width="260">
+                </el-table-column>
+                <el-table-column
+                  prop="price"
+                  label="商品单价"
+                  width="246">
+                </el-table-column>
+                <el-table-column
+                prop="num"
+                label="商品数量"
+                width="246">
+              </el-table-column>
+              </el-table>
+
+                <div id="xia">
+                    <div>总计：{{total}}</div>
+                    <div>支付方式：{{tag}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app8',
+      created(){
+          let search = window.location.search;
+
+          let urlParams = new URLSearchParams(search);
+
+          let id = JSON.parse(urlParams.get('id'))
+          console.log(id)
+
+          axios({
+              url:'orders/num',
+              method:'GET',
+              params:{
+                  orderId:id
+              }
+          }).then(result => {
+              // console.log(result.data.data)
+              this.numbers=result.data.data;
+          })
+
+          axios({
+              url:`orders/${id}`,
+              method:'GET'
+          }).then(result => {
+              // console.log(result.data.data)
+              this.tableData=result.data.data.map((item,index) => {
+                  return {id:item.id,name:item.name,price:item.price,num:this.numbers[index]}
+              })
+              console.log(this.tableData)
+          })
+
+
+
+
+          axios({
+              url:`orders/${id}`,
+              method:'POST'
+          }).then(result => {
+              console.log(result.data.data)
+              this.id=result.data.data.id
+              this.total=result.data.data.total
+              this.operator=result.data.data.operator
+              this.times=result.data.data.times
+              this.tag=result.data.data.tag
+          })
+
+      },
+      data () {
+        return {
+            tableData: [],
+          id:'',
+          times:'',
+          total:120,
+          tag:'',
+            operator:'',
+          numbers:[]
+        }
+      },
+      methods: {
+        fanhui(){
+            window.location.href="order.html";
+        }
+      }
+    })
+</script>
+</html>

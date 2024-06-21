@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页</title>
+    <link rel="stylesheet" href="./css/employee_index.css">
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body>
+    <div id="app01">
+        <div id="head">
+            <span class="title">
+                超市管理平台    
+            </span>
+
+            <div id="uuname">
+                <el-dropdown @command="handleCommand">
+                    <span class="el-dropdown-link" id="biao">
+                      <i class="el-icon-user-solid"> </i>
+                      <span>{{username}}</span>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item command="b">退出</el-dropdown-item>
+                      <!-- <el-dropdown-item command="c">螺蛳粉</el-dropdown-item> -->
+                    </el-dropdown-menu>
+                  </el-dropdown>
+
+                  
+            </div>
+        </div>
+        <div id="foot">
+            <div id="left">
+                <ul onclick="getClickedLi(event)">
+
+                  <li><a href="./employee_order.html" target="left_contents"><i class="el-icon-s-order"></i> 订单结算</a></li>
+                  <li><a href="./employee_product.html" target="left_contents"><i class="el-icon-s-goods"></i> 商品入库</a></li>
+                    <li><a :href="`./employee_info.html?id=`+employeeId" target="left_contents"><i class="el-icon-user-solid"></i>个人信息</a></li>
+                </ul>
+            </div>
+            <!-- 内容展示区 -->
+            <div id="right">
+                <iframe src="./employee_order.html" id="myIframe"  name="left_contents" frameborder="0" width="99%" height="98%" ></iframe>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app01',
+        created(){
+
+        },
+        mounted(){
+            this.sendObjectToIframe()
+        },
+      data () {
+      return {
+        username:'张三',
+          employeeId:'',
+      }
+    },
+    methods: {
+      handleCommand(command) {
+        // this.$message('click on item ' + command);
+       console.log(command)
+       if(command=='a'){
+            // console.log("点击了编辑")
+            this.dialogFormVisible=true
+       }else if(command=='b'){
+            // console.log("点击了退出")
+            window.location.href="login.html"
+       }
+      },
+        async sendObjectToIframe() {
+            let search = window.location.search;
+
+            let urlParams = new URLSearchParams(search);
+
+            let id = JSON.parse(urlParams.get('id'))
+
+            this.employeeId=id
+
+          await axios({
+              url:'employees/getId',
+              method:'GET',
+              params:{
+                  uid:id
+              }
+          }).then(result => {
+              console.log(result.data.data)
+              this.username=result.data.data.name
+
+          })
+
+        },
+    }
+    })
+  </script>
+  <script>
+      function getClickedLi(event) {
+        var target = event.target;
+        if (target.tagName==='A' || target.target==='I') {
+          const ar = document.querySelectorAll('a')
+          for(i=0;i<ar.length;i++){
+            ar[i].style.color="white"
+          }
+          target.style.color = "yellow";
+        }
+
+      }
+  </script>
+
+</html>

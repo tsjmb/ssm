@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        #app03{
+            width: 100%;
+            height: 100vh;
+            background-color: #F2F6FC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        /* background-color: red; */
+        }
+        #up{
+          width: 100%;
+          height: 15%;
+          /* background-color: pink; */
+          display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #left{
+          width: 70%;
+          height: auto;
+          text-align: center;
+          /* background-color: black; */
+        }
+        #right{
+          width: 30%;
+          height: auto;
+          /* position: relative; */
+          text-align: center;
+          /* background-color: red; */
+        }
+        #down{
+          width: 100%;
+          height: 85%;
+          background-color:white;
+        }
+        .el-input{
+          width: 38%;
+          height: auto;
+        }
+        .el-form-item__content .el-input{
+            width: 100%;
+            height: auto;
+        }
+        #shang{
+          width: 100%;
+          height: 94%;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          flex-wrap: wrap;
+          /* background-color: #F2F6FC; */
+          /* flex-direction: column; */
+          /* background-color: pink; */
+        }
+        #xia{
+          width:100%;
+          height: 6%;
+          text-align: center;
+          background-color: #F2F6FC;
+          /* background-color: yellow; */
+        }
+        #product_content{
+          width: 30%;
+          height: 45%;
+          position: relative;
+          /* background-color:#F2F6FC; */
+          border: 1px #DCDFE6 solid;
+        }
+        .el-image{
+          width: 38%;
+          height: 64%;
+          position: absolute;
+          top: 18%;
+          left: 4%;
+        }
+        #show_content{
+          width: 50%;
+          height: 80%;
+          position: absolute;
+          top: 10%;
+          right: 3%;
+          /* text-align: center; */
+          /* background-color: red; */
+          /* display: flex;
+          flex-wrap: wrap;
+          flex-direction: row; */
+          /* justify-content: space-around; */
+          /* align-items: center; */
+        }
+        #show_content p{
+          /* text-align: center; */
+          line-height: 170%;
+        }
+        #show_content p{
+            font-size: 14px ;
+        }
+        .avatar-uploader{
+            /* background-color: aqua; */
+            text-align: right;
+        }
+        .el-upload{
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            float: right;
+            border: 1px dashed #d9d9d9;
+            /* background-color: red; */
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar {
+            width: 70px;
+            height: 70px;
+            display: block;
+        }
+        </style>
+</head>
+<body>
+    <div id="app03">
+        <div id="up">
+          <div id="left">
+            <el-input
+            placeholder="请输入商品编号"
+            v-model="input"
+            @clear="clearInput"
+            clearable size="small">
+          </el-input>
+          <el-button type="primary" size="small" icon="el-icon-search" @click="btn_search">搜索</el-button>
+          </div>
+
+          <div id="right">
+            <el-button type="primary" size="small" id="tian" @click="tianjia">添加商品</el-button>
+          </div>
+        </div>
+        <div id="down">
+            <div id="shang">
+
+
+              <div id="product_content" v-for="(item,index) in tableFrom" :key="item.id">
+
+                <el-image :src="item.url" fit="cover"></el-image>
+                <div id="show_content">
+                    <p>商品编号：{{item.id}}</p>
+                    <p>商品名称：{{item.name}}</p>
+                    <p>商品售价：{{item.price}}</p>
+                    <p>商品库存：{{item.number}}</p>
+                </div>
+              </div>
+
+                <el-dialog title="商品信息" :visible.sync="dialogFormVisible">
+                    <el-form :model="form">
+
+                        <el-form-item label="商品图片" :label-width="formLabelWidth">
+                            <el-upload
+                                    class="avatar-uploader"
+                                    action="commons/upload"
+                                    :show-file-list="false"
+                                    :on-success="handleAvatarSuccess"
+                                    :before-upload="beforeAvatarUpload">
+                                <img v-if="form.url" :src="form.url" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </el-form-item>
+
+
+                                <el-form-item label="商品名称" :label-width="formLabelWidth">
+                                    <el-input v-model="form.name" autocomplete="off" size="small"></el-input>
+                                </el-form-item>
+
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="商品进价" :label-width="formLabelWidth">
+                                    <el-input v-model="form.purchasePrice" autocomplete="off" size="small"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="商品分类" :label-width="formLabelWidth">
+                                    <el-select v-model="form.sort" placeholder="请选择分类" size="small">
+                                        <el-option
+                                                v-for="item in options1"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.label">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false" size="small">取 消</el-button>
+                        <el-button type="primary" @click="btn_sumbit" size="small">确 定</el-button>
+                    </div>
+                </el-dialog>
+
+            </div>
+            <div id="xia">
+              <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="currentPage1"
+              :page-size="100"
+              layout="total, prev, pager, next"
+              :total="1000">
+            </el-pagination>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app03',
+        created(){
+          this.searchPage(0)
+        },
+      data () {
+      return {
+          dialogFormVisible: false,
+        input:'',
+        currentPage1: 1,
+        tableFrom:[],
+          form: {
+              name: '',
+              purchasePrice: '',
+              sort: '',
+              url:''
+          },
+          options1: [{
+              value: 1,
+              label: '数码'
+          }, {
+              value: 2,
+              label: '家用'
+          }, {
+              value: 3,
+              label: '食品'
+          }, {
+              value: 4,
+              label: '文具'
+          }, {
+              value: 5,
+              label: '服饰'
+          }, {
+              value: 6,
+              label: '其他'
+          }],
+          formLabelWidth: '120px'
+      }
+    },
+    methods: {
+      handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+        this.searchPage((val-1)*6)
+      },
+      tianjia(){
+        console.log('点击了添加')
+          this.dialogFormVisible=true
+      },
+      btn_search(){
+        console.log('点击了搜索')
+        axios({
+            url:'products',
+            method:'POST',
+            data:{
+                id:this.input
+            }
+        }).then(result => {
+            console.log(result.data.data)
+
+            if(result.data.data!=null){
+                this.tableFrom=result.data.data
+                this.tableFrom=this.tableFrom.map(obj => {
+                    if(obj.status==1){
+                        return{...obj,status:"在售",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                    }else{
+                        return{...obj,status:"下架",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                    }
+                    return obj
+                })
+            }
+
+        })
+      },
+        searchPage(index){
+            axios({
+                url:'products',
+                method:'GET',
+                params:{
+                    index:index
+                }
+            }).then(result => {
+                // console.log(result.data.data)
+                this.tableFrom=result.data.data
+                this.tableFrom=this.tableFrom.map(obj => {
+                    if(obj.status==1){
+                        return{...obj,status:"在售",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                    }else{
+                        return{...obj,status:"下架",url:'/supermarket_war_exploded/commons/down?name='+obj.url}
+                    }
+                    return obj
+                })
+                console.log(this.tableFrom)
+                // console.log(this.tableProduct)
+            })
+        },
+        clearInput(){
+          this.searchPage(0)
+        },
+        handleAvatarSuccess(res, file) {
+
+            this.form.url = URL.createObjectURL(file.raw);
+            // console.log(this.form.url.split('/')[3])
+        },
+        beforeAvatarUpload(file) {
+            const isJPG = file.type === 'image/jpeg';
+            const isPNG = file.type === 'image/png';
+            const isLt2M = file.size / 1024 / 1024 < 2;
+
+            if (!isJPG && !isPNG) {
+                this.$message.error('上传头像图片只能是 JPG或者PNG 格式!');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return (isJPG || isPNG) && isLt2M;
+        },
+        btn_sumbit(){
+            // console.log("点击了")
+            if(this.form.name!=null&&this.form.purchasePrice!=null&&this.form.sort!=null&&this.form.url!=''){
+                console.log(this.form.url.split('/')[3])
+                axios({
+                    url:'products/add',
+                    method:'POST',
+                    data:{
+                        name:this.form.name,
+                        purchasePrice:this.form.purchasePrice,
+                        sort:this.form.sort,
+                        status: 2,
+                        url:this.form.url.split('/')[3]
+                    }
+                }).then(result => {
+                    console.log(result.data.data)
+                    this.$message({
+                        message: '恭喜你，添加成功！',
+                        type: 'success'
+                    });
+                })
+                this.dialogFormVisible=false
+            }else{
+                this.$message({
+                    message: '警告哦，商品信息不能为空！',
+                    type: 'warning'
+                });
+            }
+        }
+    }
+    })
+</script>
+</html>

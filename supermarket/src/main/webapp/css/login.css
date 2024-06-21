@@ -1,0 +1,69 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+#app6{
+    width: 100%;
+    height: 100vh;
+    background:url(../image/backdrop.png) no-repeat;
+    /* opacity: 0.8; */
+    background-size: cover;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+}
+
+#app6 #contenxs{
+    width: 40%;
+    height: 60%;
+    background-color: #F2F6FC;
+    border-radius: 8%;
+    overflow: hidden;
+    box-shadow: 10px 2px 10px rgba(0, 0, 0, .12), 10px 10px 10px rgba(0, 0, 0, .04);
+}
+h2{
+  text-align: center;
+  color: #303841;
+  margin-bottom: 7%;
+  /* background-color: red; */
+}
+
+#app6 #contenxs #bodys1{
+    width: 100%;
+    height: 60%;
+    /* background-color: red; */
+}
+#app6 #contenxs #bodys2{
+    width: 100%;
+    height: 60%;
+    /* background-color: red; */
+}
+#bodys1 .el-input{
+  width: 60%;
+  /* background-color: black; */
+}
+#bodys2 .el-input{
+    width: 60%;
+    /* background-color: black; */
+  }
+#inputs{
+  text-align: center;
+  /* margin-top: 3%; */
+  margin-bottom:4% ;
+}
+#buttons{
+  margin-top: 8%;
+  text-align: center;
+}
+.el-button{
+  width: 25%;
+}
+
+#zi{
+  color: #606266;
+}
+#btn_xia{
+/* background-color: red; */
+text-align: center;
+margin-top: 7%;
+}

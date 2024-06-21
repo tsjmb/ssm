@@ -1,0 +1,84 @@
+*{
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+}
+#app01{
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    flex-direction: column;
+}
+#head{
+    width: 100%;
+    height: 8%;
+    background-color: #303841;
+
+}
+#foot{
+    width: 100%;
+    height: 92%;
+}
+#left{
+    width: 11%;
+    height: 100%;
+    float: left;
+    /* background-color: #00adb5; */
+    background-color: #393e46;
+}
+#right{
+    width: 89%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    float: right;
+    flex-direction: column;
+}
+
+/* 左边导航栏 */
+#foot #left ul{
+    width: 100%;
+    height: 100%;
+    /* background-color: white; */
+}
+#foot #left ul li{
+    /* background-color: pink; */
+    list-style: none;
+    height: 8%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#foot #left ul li a{
+    color: white;
+}
+#foot #left ul li:nth-child(1) a{
+    color: yellow;
+}
+#head .title{
+    font-weight: 600;
+    font-size: 20px;
+    position: relative;
+    left: 30px;
+    top: 12px;
+    color:white;
+}
+
+#uuname{
+    display: block;
+    /* width: 10%;
+    height: 5%; */
+    position: absolute;
+    top: 2.5%;
+    right: 2%;
+    color: white;
+    /* background-color: red; */
+}
+#biao{
+    color: white;
+}
+#app #foot #left ul li:hover{
+    background-color: #00adb5;
+}

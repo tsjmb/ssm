@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <link rel="stylesheet" href="./css/order.css">
+    <style>
+        .el-table td, .el-table th{
+            padding: 10.6px;
+        }
+    </style>
+</head>
+<body>
+<div id="app2">
+    <div id="up">
+        <div id="left">
+            <div>
+                <el-input
+                        placeholder="请输入订单编号"
+                        size="small"
+                        v-model="input"
+                        @clear="clear"
+                        clearable>
+                    >
+                </el-input>
+
+            </div>
+            <div>
+                <el-button type="primary" size="small" icon="el-icon-search" @click="btn_search">搜索</el-button>
+            </div>
+        </div>
+        <div id="right">
+            <el-button @click="clearFilter" size="small">清除所有过滤器</el-button>
+            <el-button type="primary" size="small" icon="el-icon-circle-plus-outline">新建订单</el-button>
+        </div>
+    </div>
+
+    <div id="down">
+        <el-table
+                ref="filterTable"
+                :data="tableData"
+                align="center"
+                style="width: 100%;">
+            <el-table-column
+                    prop="times"
+                    label="日期"
+                    sortable
+                    width="220"
+                    column-key="date"
+                    :filters="timeData"
+                    :filter-method="filterHandler"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="id"
+                    label="订单编号"
+                    width="220">
+            </el-table-column>
+
+            <el-table-column
+                    prop="num"
+                    label="商品数量"
+                    width="200">
+            </el-table-column>
+
+
+            <el-table-column
+                    prop="total"
+                    label="总计金额"
+                    width="200">
+            </el-table-column>
+
+
+            <el-table-column
+                    prop="operator"
+                    label="操作员"
+                    width="200">
+            </el-table-column>
+
+
+
+
+
+            <el-table-column
+                    prop="tag"
+                    label="支付方式"
+                    width="200"
+                    :filters="[{ text: '微信', value: '微信' }, { text: '支付宝', value: '支付宝' }, { text: '现金', value: '现金' }, { text: '银行卡', value: '银行卡' }]"
+                    :filter-method="filterTag"
+                    filter-placement="bottom-end">
+                <template slot-scope="scope">
+                    <el-tag
+                            :type="changeType(scope.row.tag)"
+                            disable-transitions>{{scope.row.tag}}</el-tag>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="100">
+                <template slot-scope="scope">
+                    <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                </template>
+            </el-table-column>
+
+        </el-table>
+
+        <div class="block">
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page.sync="currentPage1"
+                    :page-size="pages"
+                    layout="total, prev, pager, next"
+                    :total="zong">
+            </el-pagination>
+        </div>
+
+    </div>
+
+</div>
+</body>
+<script>
+    new Vue({
+        el: '#app2',
+        created(){
+            axios({
+                url:'orders',
+                method:'GET',
+                params:{
+                    index:0
+                }
+            }).then(result => {
+                console.log(result.data.data)
+                this.tableData=result.data.data
+                this.timeData=result.data.data.map(item =>{
+                    return{text:item.times.split(" ")[0],value:item.times.split(" ")[0]}
+                })
+                this.timeData = Array.from(new Set(this.timeData.map(JSON.stringify))).map(JSON.parse);
+            })
+        },
+        data () {
+            return {
+                input:'',
+                tableData: [],
+                timeData:[],
+                currentPage1: 1,
+                zong:90,
+                pages:9
+            }
+        },
+        methods: {
+            resetDateFilter() {
+                this.$refs.filterTable.clearFilter('date');
+            },
+            clearFilter() {
+                this.$refs.filterTable.clearFilter();
+            },
+            filterTag(value, row) {
+                return row.tag === value;
+            },
+            filterHandler(value, row, column) {
+                const property = column['property'];
+                return row[property].includes(value);
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+                axios({
+                    url:'orders',
+                    method:'GET',
+                    params:{
+                        index:(val-1)*9
+                    }
+                }).then(result => {
+                    console.log(result.data.data)
+                    this.tableData=result.data.data
+                })
+            },
+            handleClick(row) {
+                window.location.href=`orderItem.html?id=${row.id}`;
+                // window.location.href="orderItem.html";
+                console.log(row);
+            },
+            btn_search(){
+                console.log("点击了搜索")
+                // console.log(this.input)
+                axios({
+                    url:`orders/${this.input}`,
+                    method:'POST'
+                }).then(result => {
+                    console.log(result.data.data)
+                    this.tableData=[]
+                    if(result.data.data!=null){
+                        this.tableData.push(result.data.data)
+                    }
+                })
+            },
+            changeType(name){
+                if(name=='微信'){
+                    return 'success'
+                }
+                if(name=='支付宝'){
+                    return ''
+                }
+                if(name=='现金'){
+                    return 'warning'
+                }
+                if(name=='银行卡'){
+                    return 'info'
+                }
+            },
+            clear(){
+              console.log("点击了清除")
+                axios({
+                    url:'orders',
+                    method:'GET',
+                    params:{
+                        index:0
+                    }
+                }).then(result => {
+                    console.log(result.data.data)
+                    this.tableData=result.data.data
+                })
+            }
+        }
+    })
+</script>
+</html>

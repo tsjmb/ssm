@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <script src="./js/echarts.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <link rel="stylesheet" href="./css/home.css">
+    
+    <style>
+
+
+    </style>
+</head>
+<body>
+    <div id="app5">
+        <div id="up">
+            <div>
+                <h3>商品详情</h3>
+                <table>
+<!--                  <tr>-->
+<!--                    <td>商品种类：</td>-->
+<!--                    <td>120万</td>-->
+<!--                  </tr>-->
+                  <tr>
+                    <td>在售商品:</td>
+                    <td>{{onSale}}</td>
+                  </tr>
+                  <tr>
+                    <td>下架商品:</td>
+                    <td>{{delist}}</td>
+                  </tr>
+                  <tr>
+                    <td>商品库存总量：</td>
+                    <td>{{total}}</td>
+                  </tr>
+                </table>
+            </div>
+            <div>
+                <h3>人员详情</h3>
+                <table>
+                  <tr>
+                    <td>当日在岗人数：</td>
+                    <td>80人</td>
+                  </tr>
+                  <tr>
+                    <td>当日休假人数：</td>
+                    <td>20人</td>
+                  </tr>
+                  <tr>
+                    <td>员工总数：</td>
+                    <td>{{employeeNum}}人</td>
+                  </tr>
+                </table>
+            </div>
+            <div>
+                <h3>收支详情</h3>
+                <table>
+                  <tr>
+                    <td>当月营销收入：</td>
+                    <td>120万</td>
+                  </tr>
+                  <tr>
+                    <td>当月支出：</td>
+                    <td>100万</td>
+                  </tr>
+                  <tr>
+                    <td>净收入:</td>
+                    <td>20万</td>
+                  </tr>
+                </table>
+            </div>
+            <div>
+                <h3>人流量详情</h3>
+                <table>
+                  <tr>
+                    <td>每小时：</td>
+                    <td>100人</td>
+                  </tr>
+                  <tr>
+                    <td>超市实时人数:</td>
+                    <td>150人</td>
+                  </tr>
+
+                </table>
+            </div>
+        </div>
+        <div id="down">
+            <div id="left">
+                <div id="main1"></div>
+            </div>
+            <div id="right">
+                <div id="main2"></div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app5',
+      created(){
+        axios({
+            url:'products/inventory',
+            method:'GET'
+        }).then(result =>{
+            this.onSale=result.data.data[0]
+            this.delist=result.data.data[1]
+            this.total=result.data.data[0]+result.data.data[1]
+            // console.log(result.data.data)
+        })
+          // this.getTimeData()
+        axios({
+            url:'employees/num',
+            method:'GET'
+        }).then(result => {
+            this.employeeNum=result.data.data
+        })
+      },
+        mounted(){
+            this.getTimeData()
+            this.getTotal()
+        },
+      data () {
+      return {
+        onSale:'',
+        delist:'',
+        total:'',
+        num:[],
+        employeeNum:'',
+        numData:[],
+        totalData:[],
+          totalY:[],
+        strMonth:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec']
+      }
+    },
+        methods:{
+           async getTotal(){
+
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const totalX=this.strMonth.slice(0, parseInt(month))
+
+                await axios({
+                    url:'orders/total',
+                    method:'POST',
+                    params:{
+                        years:parseInt(year),
+                        months:parseInt(month)
+                    }
+                }).then(result => {
+                    // console.log(result.data.data)
+                    this.totalY = result.data.data
+                })
+                var myChart = echarts.init(document.getElementById('main2'));
+                // 显示标题，图例和空的坐标轴
+                myChart.setOption({
+                    title: {
+                        text: '商品一年以来成交额'
+                    },
+                    tooltip: {},
+                    xAxis: {
+                        data: []
+                    },
+                    yAxis: {},
+                    series: [
+                        {
+                            type: 'line',
+                            data: [],
+                            smooth: true,
+                            color:'#009688'
+                        }
+                    ]
+                });
+
+                myChart.setOption({
+                    xAxis: {
+                        data: totalX
+                    },
+                    series: [
+                        {
+                            data: this.totalY
+                        }
+                    ]
+                });
+
+            },
+            async getTimeData(){
+
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const timesX=[]
+
+                if(parseInt(day)==1){
+                    timesX[0]=`${month}-${day}`;
+                }else{
+                    for(let i=6,j=parseInt(day);i>=0,j>parseInt(day)-7;i--,j--){
+                        let dd
+                        if(j<10){
+                            dd='0'+j.toString()
+                        }else{
+                            dd=j.toString()
+                        }
+                        timesX[i]= `${month}-${dd}`;
+                    }
+                }
+
+
+              await axios({
+                  url:'orders/num',
+                  method:'POST',
+                  params:{
+                      years:parseInt(year),
+                      months:parseInt(month),
+                      days:parseInt(day)
+                  }
+              }).then(result => {
+                  console.log(parseInt(year))
+                  console.log(parseInt(month))
+                  console.log(parseInt(day))
+                  console.log(result.data.data)
+                  this.numData=result.data.data.map(item => item.num)
+                  this.totalData=result.data.data.map(item => item.total)
+                  // console.log(this.numData)
+                  // console.log(this.totalData)
+              })
+
+
+                    var myChart = echarts.init(document.getElementById('main1'));
+                    // 显示标题，图例和空的坐标轴
+                    myChart.setOption({
+                        title: {
+                            text: '商品近7天营销'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: ['销量','成交额']
+                        },
+                        xAxis: {
+                            data: []
+                        },
+                        yAxis: {},
+                        series: [
+                            {
+                                name: '销量',
+                                type: 'bar',
+                                data: [],
+                                color:'#00acc1'
+                            },
+                            {
+                                name: '成交额',
+                                type: 'bar',
+                                data: [],
+                                color:'#009688'
+                            }
+                        ]
+                    });
+
+                    myChart.setOption({
+                        xAxis: {
+                            data: timesX
+                        },
+                        series: [
+                            {
+                                // 根据名字对应到相应的系列
+                                name: '销量',
+                                data: this.numData
+                            },
+                            {
+                                // 根据名字对应到相应的系列
+                                name: '成交额',
+                                data: this.totalData
+                            }
+                        ]
+                    });
+
+            }
+
+        }
+    })
+  </script>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        #app02{
+            width: 100%;
+            height: 100vh;
+            background-color: #F2F6FC;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        /* background-color: red; */
+        }
+        #left{
+            width: 74.5%;
+            height: 100%;
+            background-color: #F2F6FC;
+        }
+        #right{
+            width: 25%;
+            height: 100%;
+            /* background-color: pink; */
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-direction: column;
+        }
+        #shang{
+            width: 100%;
+            height: 16%;
+            background-color: #F2F6FC;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        #bian,#shu{
+            width: 35%;
+            height: auto;
+        }
+
+         .el-input{
+            width: 70%;
+            height: auto;
+         }
+         #xia{
+            width: 100%;
+            height: 84%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* background-color: orange; */
+         }
+         #contents{
+            width: 98%;
+            height: 98%;
+            background-color: white;
+         }
+         
+         #up{
+            width: 95%;
+            height: 25%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+         }
+         #down{
+            width: 95%;
+            height: 70%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: column;
+            background-color: white;
+         }
+         h2{
+            color: #303841;
+         }
+         #item{
+            width: 100%;
+            height: 20%;
+            /* background-color: pink; */
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+         }
+         #item0{
+          width: 100%;
+          height: 30%;
+          /* background-color: aqua; */
+         } 
+         #item0 .el-input{
+          width: 60%;
+          height: auto;
+         }
+         .el-select .el-input{
+            width: 100%;
+            height: auto;
+         }
+         p .el-input{
+            width: 25%;
+            height: auto;
+         }
+         .el-input.is-disabled .el-input__inner{
+          color:black;
+
+         }
+
+        </style>
+</head>
+<body>
+    <div id="app02">
+        <div id="left">
+            <div id="shang">
+                <div id="bian">
+                    <span>
+                        商品编号：
+                    </span>
+
+                    <el-input
+                    placeholder="请输入内容"
+                    v-model="input1"
+                    size="small"
+                    clearable>
+                </div>
+                <div id="shu">
+                    商品数量：
+                    <el-input
+                    placeholder="请输入内容"
+                    v-model="input2"
+                    size="small"
+                    clearable>
+                </div>
+                <div id="an">
+                    <el-button type="primary" size="small" @click="btn_ok">确定</el-button>
+                    <el-button type="warning" size="small" @click="btn_cleanr">清除</el-button>
+                </div>
+            </div>
+            <div id="xia">
+                <div id="contents">
+                    <el-table
+                    :data="tableData"
+                    stripe
+                    height="100%"
+                    style="width: 100%">
+                    <el-table-column
+                      prop="id"
+                      label="商品编号"
+                      width="217">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="商品名称"
+                      width="217">
+                    </el-table-column>
+                    <el-table-column
+                    prop="price"
+                    label="商品单价"
+                    width="217">
+                  </el-table-column>
+                  <el-table-column
+                  prop="number"
+                  label="商品数量"
+                  width="217">
+                </el-table-column>
+                <el-table-column
+                fixed="right"
+                label="操作"
+                width="120">
+                <template slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="deleteRow(scope.$index, tableData)"
+                    type="text"
+                    size="small">
+                    删除
+                  </el-button>
+                </template>
+              </el-table-column>
+                  </el-table>
+                </div>
+            </div>
+        </div>
+        <div id="right">
+            <div id="up">
+                <h2>总计：{{total}} 元</h2>
+            </div>
+            <div id="down">
+                <div id="item">
+                  <span>
+                    支付方式：
+                  </span>
+                    <el-select v-model="value" placeholder="请选择" size="small" @change="change_list(value)">
+                        <el-option
+                          v-for="item in options"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                        </el-option>
+                      </el-select>
+                </div>
+
+                <div id="item0">
+                  <p style="text-align: center;">现金找零</p>
+                  <p style="text-align: center;">实收：
+                    <el-input
+                    placeholder="请输入内容"
+                    v-model="input3"
+                    size="small"
+                    @blur="handleBlur"
+                    @clear="btn_del"
+                    :disabled="flag"
+                    clearable>
+                  </p>
+                  <p style="text-align: center;">找零：
+                    <el-input
+                    :disabled="true"
+                    placeholder="请输入内容"
+                    v-model="input4"
+                    size="small"
+                    clearable>
+                  </p>
+                </div>
+
+                <div id="item">
+                    <el-button type="primary" size="small" @click="btn_settle">立即结算</el-button>
+                    <el-button type="danger" size="small" @click="btn_rest">重置列表</el-button>
+                </div>
+            </div>
+        </div>
+          
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app02',
+      created(){
+
+      } ,
+      data () {
+      return {
+        input1:'',
+        input2:'',
+        input3:'',
+        input4:'',
+        flag:true,
+        tableData: [],
+        options: [{
+          value: '微信',
+          label: '微信'
+        }, {
+          value: '支付宝',
+          label: '支付宝'
+        }, {
+          value: '现金',
+          label: '现金'
+        }, {
+          value: '银行卡',
+          label: '银行卡'
+        }],
+        value: ''
+      }
+    },
+    methods: {
+      btn_ok(){
+        console.log('点击了ok')
+        if(this.input1!=''&&this.input2!=''){
+            axios({
+                url:`products/${this.input1}`,
+                method:'GET'
+            }).then(result => {
+                console.log(result.data.data)
+                if(result.data.data==null){
+                    this.$message.error('错了哦，商品不存在！');
+                }else{
+                    if(result.data.data.status==1){
+                        const obj = (({id,name,price}) => {return {id,name,price}})(result.data.data)
+                        obj.number = parseInt(this.input2)
+                        console.log(obj)
+                        this.tableData.push(obj)
+                        this.input1=''
+                        this.input2=''
+                    }else{
+                        this.$message({
+                            message: '警告哦，该商品已经下架！',
+                            type: 'warning'
+                        });
+                    }
+                }
+            })
+        }
+      },
+      btn_cleanr(){
+        this.input1=''
+
+        this.input2=''
+      },
+      async btn_settle(){
+        console.log('点击了结算')
+          function formatDate(date) {
+              const year = date.getFullYear();
+              const month = (date.getMonth() + 1).toString().padStart(2, '0');
+              const day = date.getDate().toString().padStart(2, '0');
+              const hour = date.getHours().toString().padStart(2, '0');
+              const minute = date.getMinutes().toString().padStart(2, '0');
+              const second = date.getSeconds().toString().padStart(2, '0');
+              return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+          }
+
+          const date = new Date();
+          const formattedDate = formatDate(date);
+          // console.log("格式化后的日期时间：", formattedDate);
+
+        if(this.tableData!=[] && this.value!=''){
+            const len = this.tableData.length
+            const num = this.tableData.reduce((acc, obj) => acc + obj.number, 0);
+            const orderNumber = this.generateOrderNumber(8);
+            // console.log(num)
+            await axios({
+                url:'orders/add',
+                method:'POST',
+                data: {
+                    id:parseInt(orderNumber),
+                    times: formattedDate,
+                    num:num,
+                    total:this.total,
+                    operator: "王五",
+                    tag:this.value
+                }
+            }).then(result => {
+                console.log(result.data.data)
+                for (let i = 0; i < len; i++) {
+                    this.save_orderList(parseInt(this.tableData[i].number),parseInt(orderNumber),this.tableData[i].id)
+                }
+                if(result.data.data){
+                    this.btn_rest()
+                }
+            })
+        }
+      },
+      btn_rest(){
+        this.input1=''
+        this.input2=''
+        this.input3=''
+        this.input4=''
+        this.tableData=[]
+        this.value=''
+        // this.total=0
+      },
+      deleteRow(index, rows) {
+        rows.splice(index, 1);
+      },
+      handleBlur(){
+        if(this.input3!='' && this.total!=0){
+          this.input4=(this.input3-this.total).toFixed(2)
+        }
+        if(this.input3==''){
+          this.input4=''
+        }
+      },
+      btn_del(){
+        this.input4=''
+      },
+      change_list(value){
+        console.log(value)
+        if(value=='现金'){
+          this.flag=false
+        }else{
+          this.flag=true
+        }
+      },
+        generateOrderNumber(length) {
+            let result = '';
+            const characters = '0123456789';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        },
+        save_orderList(num,orderId,productId){
+          axios({
+              url:'orders/order_list',
+              method:'POST',
+              params:{
+                  num:num,
+                  orderId:orderId,
+                  productId:productId
+              }
+          }).then(result => {
+              console.log(result.data.data)
+          })
+        }
+
+    },
+    computed:{
+      total(){
+        let count = this.tableData.reduce((sum,item) => {
+          return sum+(item.price*item.number)
+        },0)
+        return count.toFixed(2)
+      }
+    },
+    watch:{
+      // input3(newVal,oldVal){
+      //   console.log('新值为：')
+      //   console.log(newVal)
+      // }
+    }
+    })
+</script>
+</html>

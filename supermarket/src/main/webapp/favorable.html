@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="./css/favorable.css">
+    <style>
+      
+    </style>
+</head>
+<body>
+    <div id="app3">
+        <div id="head">
+            <div id="search">
+                <el-input
+                    placeholder="请输入优惠名称"
+                    v-model="input"
+                    size="small"
+                    clearable>
+                </el-input>
+                <el-button type="primary" size="small" icon="el-icon-search">搜索</el-button>
+            </div>
+            <div>
+                <el-button type="primary"  size="small">新建优惠</el-button>
+            </div>
+        </div>
+        <div id="foots">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app3',
+      data () {
+      return {
+            input:""
+      }
+    }
+    })
+  </script>
+</html>

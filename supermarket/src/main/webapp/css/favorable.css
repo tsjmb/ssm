@@ -1,0 +1,50 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+#app3{
+    width: 100%;  
+    height: 100vh;
+    background-color: #F2F6FC;
+    text-align: center;
+}
+#app3 #head{
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    background-color:#F2F6FC;
+}
+#app3 #foots{
+    width: 98%;
+    height: 89%;
+    display: flex;
+    margin-left: 1%;
+    /* justify-content:space-between; */
+    align-items: center;
+    background-color: white;
+}
+#app3 #foots div{
+    width: 20%;
+    height: 98%;
+    margin-left: 0.5%;
+    border: 1px #C0C4CC solid;
+    border-radius: 4px
+    /* background-color: red; */
+}
+#search{
+    height: auto;
+    width: 50%;
+    /* background-color: red; */
+}
+#search .el-input {
+    width: 60%;
+    /* background-color: black; */
+}
+#app3 #head div:nth-child(2){
+    width: 50%;
+    height: auto;
+    /* background-color: aqua; */
+}

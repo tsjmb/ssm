@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="./element-ui/lib/theme-chalk/index.css">
+    <script src="./js/vue.js"></script>
+    <script src="./element-ui/lib/index.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <link rel="stylesheet" href="./css/login.css">
+    <style>
+        #danxuan{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app6">
+        <div id="contenxs">
+            <div id="head">
+              <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                <el-menu-item index="1">登录</el-menu-item>
+                <el-menu-item index="2">注册</el-menu-item>
+              </el-menu>
+            </div>
+            <h2>欢迎{{ titles }}</h2>
+            <div id="bodys1" v-if="deng">
+                  
+                  <div id="inputs">
+                    <span id="zi">用户账号：</span>
+                    <el-input
+                    placeholder="请输入账号"
+                    v-model="input1"
+                    clearable>
+                  </el-input>
+                  </div>
+
+                  <div id="inputs">
+                      <span id="zi">用户密码：</span>
+                      <el-input placeholder="请输入密码" v-model="input2" show-password></el-input>
+                  </div>
+
+                    <div id="danxuan">
+                        <el-radio v-model="radio" label="1">管理员</el-radio>
+                        <el-radio v-model="radio" label="2">普通用户</el-radio>
+                    </div>
+
+                  <div id="buttons">
+                    <el-button type="primary" @click="btn_login" id="btn_login">登录</el-button>
+                    <el-button id="btn_delete" @click="btn_delete()">取消</el-button>
+                  </div>
+            </div>
+            <div id="bodys2" v-if="zhu">
+                  <div id="inputs">
+                    <span id="zi">用户账号：</span>
+                    <el-input
+                    placeholder="请输入账号"
+                    v-model="input3"
+                    clearable>
+                  </div>
+                  <div id="inputs">
+                    <span id="zi">用户密码：</span>
+                    <el-input placeholder="请输入密码" v-model="input4" show-password></el-input>
+                  </div>
+                  <div id="inputs">
+                    <span id="zi">确认密码：</span>
+                    <el-input placeholder="请输入密码" v-model="input5" show-password></el-input>
+                  </div>
+                  <div id="btn_xia">
+                    <el-button type="primary" @click="sign()">注册</el-button>
+                    <el-button @click="btn_delete">取消</el-button>
+                  </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+      el: '#app6',
+      data () {
+      return {
+        deng:true,
+        zhu:false,
+        titles:"登录",
+        activeIndex:"1",
+        input1: '',
+        input2: '',
+        input3: '',
+        input4: '',
+        input5: '',
+          radio: '1'
+      }
+    },
+    methods: {
+      handleSelect(key, keyPath) {
+  
+        // console.log(key, keyPath);
+        if(key==1){
+            // console.log("点击了1")
+            this.titles="登录",
+            this.zhu=false,
+            this.deng=true
+        }else if(key==2){
+          this.titles="注册"
+          this.deng=false
+          this.zhu=true
+            // console.log("点击了2")
+        }
+        
+      },
+      btn_delete(){
+        this.input1="",
+        this.input2="",
+        this.input3="",
+        this.input4="",
+        this.input5="",
+        console.log("被点击了")
+      },
+      btn_login(){
+          console.log(this.radio)
+        axios({
+          url:"users/login",
+          method:'POST',
+          data:{
+            username:this.input1,
+            password:this.input2,
+            identification: parseInt(this.radio)
+          }
+        }).then(result =>{
+          console.log(result.data)
+            if(result.data.code==20041){
+
+                this.$message({
+                    message: '恭喜你，登录成功',
+                    type: 'success'
+                });
+                if(result.data.data.identification==1){
+                    setTimeout(`setOut1(${result.data.data.id})`,2000)
+                }else{
+                    setTimeout(`setOut2(${result.data.data.id})`,2000)
+                }
+
+            }else{
+                this.$message.error('错了哦，'+result.data.msg);
+            }
+        })
+      },
+      sign(){
+        if(this.input4!=this.input5){
+          this.$message.error('错了哦，两次输入的密码不一样！');
+        }
+      }
+    }
+    })
+  </script>
+<script>
+    function setOut1(id){
+        window.location.href=`index.html?id=${id}`;
+    }
+    function setOut2(id){
+        window.location.href=`employee_index.html?id=${id}`;
+    }
+</script>
+</html>
